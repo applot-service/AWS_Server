@@ -80,6 +80,12 @@ class AccountNotFound(Exception):
 
 
 @dataclass
+class ApplicationInfo:
+    application_id: str = field(default_factory=uuid_id)
+    description: str = field(default=None)
+
+
+@dataclass
 class Account:
     account_id: str = field(default_factory=uuid_id)
     entity_created_date: str = field(default_factory=current_datetime_str)
@@ -88,7 +94,7 @@ class Account:
     company: str = field(default=None)
     email: str = field(default=None)
     password: str = field(default=None)
-    applications: List[str] = field(default=None)  # IDs
+    applications: List[ApplicationInfo] = field(default=None)  # IDs
 
     def to_dict(self):
         return asdict(self)
