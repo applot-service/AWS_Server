@@ -1,16 +1,15 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: >
-  AWS
-
-  Sample SAM Template for AWS
+Description: AWS SAM Template for Applot Server Infrastructure
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
-    Timeout: 3
+    Timeout: 5
+    Runtime: python3.8
 
 Resources:
+
   HelloWorldFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
@@ -23,6 +22,36 @@ Resources:
           Properties:
             Path: /hello
             Method: get
+
+  UserManagementFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: components/lambdas/user_management/
+      Handler: app.lambda_handler
+      Policies:
+        - AmazonDynamoDBFullAccess
+      Events:
+        CreateUser:
+          Type: Api
+          Properties:
+            Path: /create_user
+            Method: PUT
+        EditUser:
+          Type: Api
+          Properties:
+            Path: /edit_user
+            Method: POST
+        DeleteUser:
+          Type: Api
+          Properties:
+            Path: /delete_user
+            Method: DELETE
+        AuthenticateUser:
+          Type: Api
+          Properties:
+            Path: /auth_user
+            Method: GET
+
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function

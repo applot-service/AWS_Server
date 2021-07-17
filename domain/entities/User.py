@@ -109,6 +109,9 @@ class Account:
     def delete_account(self):
         repository.delete_account_by_id(self.account_id)
 
+    def edit_account(self):
+        repository.edit_account_by_id(self.account_id)
+
     @classmethod
     def authenticate(cls, email: str, password: str) -> "Account":
         account = cls.get_account_by_email(email)
