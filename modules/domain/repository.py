@@ -1,5 +1,4 @@
-from domain.helpers import database
-from domain.helpers import file_storage
+from modules.domain.helpers import database
 
 from typing import Dict
 
@@ -12,7 +11,7 @@ def get_account_by_id(account_id: str):  # Using Primary Key
 
 
 def get_account_by_email(email: str):  # Using GSI
-    return database.find_item(_ACCOUNTS_TABLE_NAME, "email_index" "email", email)
+    return database.find_item(_ACCOUNTS_TABLE_NAME, "email_index", "email", email)
 
 
 def register_account(account_dict: Dict):

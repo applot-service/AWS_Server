@@ -1,6 +1,15 @@
 import json
 
-from domain.entities import User
+from modules.domain.entities import User
+from modules.domain import exceptions
+from modules.errors_map import error
+
+
+def response(status_code: int, body: dict):
+    return {
+        "statusCode": status_code,
+        "body": json.dumps(body),
+    }
 
 
 def lambda_handler(event, context):
@@ -20,22 +29,22 @@ def lambda_handler(event, context):
 
 def create_user(event, context):
     body = json.loads(event.get("body"))
-    if body:
-        new_user = User.Account(
-            first_name=body.get("first_name"),
-            last_name=body.get("last_name"),
-            company=body.get("company"),
-            email=body.get("email"),
-            password=body.get("password")
-        )
+    if not body:
+        return response(404, {"error": "NoBody"})
 
-        print("NEW USER:", new_user)
-        return {
-            "statusCode": 201,
-            "body": json.dumps({
-                "message": "User was created"
-            }),
-        }
+    new_user = User.Account(
+        first_name=body.get("first_name"),
+        last_name=body.get("last_name"),
+        company=body.get("company"),
+        email=body.get("email"),
+        password=body.get("password")
+    )
+    print("NEW USER:", new_user)
+    try:
+        new_user.register_account()
+    except exceptions.EmailAlreadyInUse as ex:
+        return response(400, error(ex))
+    return response(201, {"message": "User was created"})
 
 
 def edit_user(event, context):

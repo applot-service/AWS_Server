@@ -1,14 +1,13 @@
 import os
 import logging
-import secrets
 from uuid import uuid4
 from dataclasses import dataclass, field, asdict
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 
 import jwt
 import bcrypt
 
-from domain import repository
+from modules.domain import repository, exceptions
 
 from typing import List, Optional
 
@@ -54,29 +53,9 @@ def get_account_id_from_token(token: str) -> str:
     try:
         decoded_token = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
     except (jwt.DecodeError, jwt.ExpiredSignatureError):
-        raise InvalidToken
+        raise exceptions.InvalidToken
 
     return decoded_token["account_id"]
-
-
-class InvalidToken(Exception):
-    pass
-
-
-class PasswordNotCompliant(Exception):
-    pass
-
-
-class PasswordsNotMatch(Exception):
-    pass
-
-
-class RolesUnsuitable(Exception):
-    pass
-
-
-class AccountNotFound(Exception):
-    pass
 
 
 @dataclass
@@ -104,6 +83,9 @@ class Account:
         return cls(**source)
 
     def register_account(self):
+        found_account = repository.get_account_by_email(self.email)
+        if found_account:
+            raise exceptions.EmailAlreadyInUse
         repository.register_account(self.to_dict())
 
     def delete_account(self):
@@ -116,9 +98,9 @@ class Account:
     def authenticate(cls, email: str, password: str) -> "Account":
         account = cls.get_account_by_email(email)
         if account is None:
-            raise AccountNotFound
+            raise exceptions.AccountNotFound
         if not bcrypt.checkpw(password.encode(), account.get("password").encode()):
-            raise AccountNotFound
+            raise exceptions.AccountNotFound
         return cls.from_dict(account)
 
     @classmethod

@@ -86,7 +86,7 @@ def update_item(table_name: str, key: str, value: str, attr: str,
     return response
 
 
-def find_item(table_name: str, index_name: str, search_key: str, search_value: str, newest=False,) -> dict:
+def find_item(table_name: str, index_name: str, search_key: str, search_value: str, newest=False) -> dict:
     print(f"DynamoDB find_item(table_name:{table_name}, index_name:{index_name},",
           f"search_key:{search_key}, search_value:{search_value})")
     table = DYNAMODB.Table(table_name)
