@@ -59,7 +59,7 @@ Resources:
             - AttributeName: "email"
               KeyType: "HASH"
           Projection:
-            ProjectionType: "KEYS_ONLY"
+            ProjectionType: "ALL"
 
 #Outputs:
 #  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function

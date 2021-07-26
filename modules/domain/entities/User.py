@@ -11,7 +11,8 @@ from modules.domain import repository, exceptions
 
 from typing import List, Optional
 
-JWT_SECRET = os.getenv("JWT_SECRET")
+# JWT_SECRET = os.getenv("JWT_SECRET")
+JWT_SECRET = "SUPER SECRET"
 JWT_ALGORITHM = "HS256"
 
 
@@ -97,11 +98,11 @@ class Account:
     @classmethod
     def authenticate(cls, email: str, password: str) -> "Account":
         account = cls.get_account_by_email(email)
-        if account is None:
+        if not account:
             raise exceptions.AccountNotFound
-        if not bcrypt.checkpw(password.encode(), account.get("password").encode()):
+        if not bcrypt.checkpw(password.encode(), account.password.encode()):
             raise exceptions.AccountNotFound
-        return cls.from_dict(account)
+        return account
 
     @classmethod
     def get_account_by_id(cls, account_id: str) -> Optional["Account"]:
