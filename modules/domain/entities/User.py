@@ -47,7 +47,9 @@ def check_password_policy(password: str) -> bool:
 def create_token_with(account_id: str) -> str:
     payload = {'account_id': account_id}
     token = jwt.encode(payload, JWT_SECRET, JWT_ALGORITHM)
-    return token.decode('utf-8')
+    if type(token) == bytes:
+        return token.decode('utf-8')
+    return token
 
 
 def get_account_id_from_token(token: str) -> str:
