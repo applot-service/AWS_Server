@@ -44,7 +44,7 @@ def create_user(event, context):
     return response(status_code=201, data={"message": "User was created"})
 
 
-def edit_user(event, context):
+def edit_user(event, context):  # TODO: implement
     return {
         "statusCode": 200,
         "body": json.dumps({
@@ -53,7 +53,7 @@ def edit_user(event, context):
     }
 
 
-def delete_user(event, context):
+def delete_user(event, context):  # TODO: implement
     return {
         "statusCode": 204,
         "body": json.dumps({

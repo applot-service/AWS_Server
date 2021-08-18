@@ -62,8 +62,8 @@ def get_account_id_from_token(token: str) -> str:
 
 
 @dataclass
-class ApplicationInfo:
-    application_id: str = field(default_factory=uuid_id)
+class ProjectInfo:
+    project_id: str = field(default_factory=uuid_id)
     description: str = field(default=None)
 
 
@@ -76,7 +76,7 @@ class Account:
     company: str = field(default=None)
     email: str = field(default=None)
     password: str = field(default=None)
-    applications: List[ApplicationInfo] = field(default=None)  # IDs
+    projects: List[ProjectInfo] = field(default=None)  # IDs
 
     def to_dict(self):
         return asdict(self)
