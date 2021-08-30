@@ -7,6 +7,7 @@ Globals:
   Function:
     Timeout: 5
     Runtime: python3.8
+    MemorySize: 1536
 
 Resources:
   # LAMBDAS
