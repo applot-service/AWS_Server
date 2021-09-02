@@ -1,9 +1,10 @@
 from modules.domain.helpers import database
+from modules.domain.entities import Project
 
 from typing import Dict
 
 _ACCOUNTS_TABLE_NAME = "Accounts"
-_APPLICATIONS_TABLE_NAME = "Applications"
+_PROJECTS_TABLE_NAME = "Projects"
 
 
 def get_account_by_id(account_id: str):  # Using Primary Key
@@ -26,13 +27,16 @@ def edit_account_account_by_id(account_id: str):
     return database.put_item(_ACCOUNTS_TABLE_NAME, "account_id", account_id)
 
 
-def get_application_by_id(application_id: str):  # Using Primary Key
-    return database.get_item(_APPLICATIONS_TABLE_NAME, "application_id", application_id)
+def get_project_by_id(project_id: str):  # Using Primary Key
+    return database.get_item(_PROJECTS_TABLE_NAME, "project_id", project_id)
 
 
-def create_application(application_dict: dict):
-    return database.put_item(_APPLICATIONS_TABLE_NAME, application_dict)
+def create_project(project_dict: dict):
+    new_item = database.put_item(_PROJECTS_TABLE_NAME, project_dict)
+    if not new_item:
+        return None
+    return Project.BaseProject.from_dict(new_item)
 
 
-def delete_application_by_id(application_id: str):
-    return database.delete_item(_APPLICATIONS_TABLE_NAME, "application_id", application_id)
+def delete_project_by_id(project_id: str):
+    return database.delete_item(_PROJECTS_TABLE_NAME, "project_id", project_id)
