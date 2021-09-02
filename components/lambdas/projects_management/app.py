@@ -29,10 +29,11 @@ def lambda_handler(event, context):
 
 def create_project(event, context):
     try:
-        created_project = Project.BaseProject().create_project()
+        empty_project_entity = Project.BaseProject()
+        empty_project_entity.create_project()
     except Exception as ex:
         return response(400, error(ex))
-    return response(status_code=201, data=created_project.to_dict())
+    return response(status_code=201, data=empty_project_entity.to_dict())
 
 
 def edit_project(event, context):  # TODO: implement

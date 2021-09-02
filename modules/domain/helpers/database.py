@@ -55,7 +55,7 @@ def delete_item(table_name: str, key: str, value: str):
 def put_item(table_name: str, item: dict):
     print(f"DynamoDB put_item(table_name:{table_name}, item:{item})")
     table = DYNAMODB.Table(table_name)
-    return table.put_item(Item=item)
+    table.put_item(Item=item)
 
 
 def update_item(table_name: str, key: str, value: str, attr: str,
