@@ -1,27 +1,19 @@
 import os
 import logging
-from uuid import uuid4
-from dataclasses import dataclass, field, asdict
-from datetime import datetime, timezone
+from dataclasses import dataclass, asdict
 
 import jwt
 import bcrypt
 
 from modules.domain import repository, exceptions
+from ApplotLibs.DataStructures import User
 
-from typing import List, Optional
+
+from typing import Optional
 
 # JWT_SECRET = os.getenv("JWT_SECRET")
 JWT_SECRET = "SUPER SECRET"
 JWT_ALGORITHM = "HS256"
-
-
-def uuid_id() -> str:
-    return str(uuid4())
-
-
-def current_datetime_str() -> str:
-    return datetime.now(timezone.utc).isoformat()
 
 
 def check_password_policy(password: str) -> bool:
@@ -60,24 +52,13 @@ def get_account_id_from_token(token: str) -> str:
 
     return decoded_token["account_id"]
 
-
 @dataclass
-class ProjectInfo:
-    project_id: str = field(default_factory=uuid_id)
-    description: str = field(default=None)
+class ProjectID(User.ProjectID):
+    pass
 
 
 @dataclass
-class Account:
-    account_id: str = field(default_factory=uuid_id)
-    entity_created_date: str = field(default_factory=current_datetime_str)
-    first_name: str = field(default=None)
-    last_name: str = field(default=None)
-    company: str = field(default=None)
-    email: str = field(default=None)
-    password: str = field(default=None)
-    projects: List[ProjectInfo] = field(default=None)  # IDs
-
+class Account(User.Account):
     def to_dict(self):
         return asdict(self)
 
