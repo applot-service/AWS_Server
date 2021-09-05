@@ -37,7 +37,7 @@ class BaseProject(Project.BaseProject):
             resources={
                 resource_id: Resource(**resource_data)
                 for resource_id, resource_data in source.get("resources").items()
-            } if source.get("resources") else {},
+            } if source.get("resources") else None,
             versions_control=VersionsControl(**source.get("versions_control")) if
             source.get("versions_control") else VersionsControl(),
             participants={
@@ -49,7 +49,7 @@ class BaseProject(Project.BaseProject):
                     media=Policies.Media(**account_policies.get("media")),
                     users=Policies.Users(**account_policies.get("users"))
                 ) for account_id, account_policies in source.get("participants")
-            } if source.get("participants") else {}
+            } if source.get("participants") else None
         )
 
     def create_project(self):
