@@ -37,19 +37,19 @@ class BaseProject(Project.BaseProject):
             resources={
                 resource_id: Resource(**resource_data)
                 for resource_id, resource_data in source.get("resources").items()
-            } if source.get("resources") else None,
+            } if source.get("resources") else {},
             versions_control=VersionsControl(**source.get("versions_control")) if
-            source.get("versions_control") else None,
-            participants=[
-                AccountWithPolicies(
-                    account_id=participant_policies.get("account_id"),
-                    project=Policies.Project(**participant_policies.get("project")),
-                    pages=Policies.Pages(**participant_policies.get("pages")),
-                    items=Policies.Items(**participant_policies.get("items")),
-                    media=Policies.Media(**participant_policies.get("media")),
-                    users=Policies.Users(**participant_policies.get("users"))
-                ) for participant_policies in source.get("participants")
-            ] if source.get("participants") else None,
+            source.get("versions_control") else VersionsControl(),
+            participants={
+                account_id: AccountWithPolicies(
+                    account_id=account_policies.get("account_id"),
+                    project=Policies.Project(**account_policies.get("project")),
+                    pages=Policies.Pages(**account_policies.get("pages")),
+                    items=Policies.Items(**account_policies.get("items")),
+                    media=Policies.Media(**account_policies.get("media")),
+                    users=Policies.Users(**account_policies.get("users"))
+                ) for account_id, account_policies in source.get("participants")
+            } if source.get("participants") else {}
         )
 
     def create_project(self):
