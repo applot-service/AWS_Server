@@ -1,4 +1,5 @@
 import json
+import logging
 
 from modules.domain.entities import Project
 from modules.domain import exceptions
@@ -32,6 +33,7 @@ def create_project(event, context):
         empty_project_entity = Project.BaseProject()
         empty_project_entity.create_project()
     except Exception as ex:
+        logging.error("Service unavailable: %s", ex)
         return response(400, error(ex))
     return response(status_code=201, data=empty_project_entity.to_dict())
 
