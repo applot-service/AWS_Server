@@ -10,64 +10,154 @@ Globals:
     MemorySize: 1536
 
 Resources:
-  # LAMBDAS
-  UserManagementFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: components/lambdas/user_management/
-      Handler: app.lambda_handler
-      Policies:
-        - AmazonDynamoDBFullAccess
-      Events:
-        CreateUser:
-          Type: Api
-          Properties:
-            Path: /create_user
-            Method: PUT
-        EditUser:
-          Type: Api
-          Properties:
-            Path: /edit_user
-            Method: POST
-        DeleteUser:
-          Type: Api
-          Properties:
-            Path: /delete_user
-            Method: DELETE
-        AuthenticateUser:
-          Type: Api
-          Properties:
-            Path: /auth_user
-            Method: GET
 
-  ProjectsManagementFunction:
+  # WEBSOCKETS
+  WebSocketApi:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: WebSocketApi
+      ProtocolType: WEBSOCKET
+      RouteSelectionExpression: "$request.body.action"
+
+
+  # ROUTES
+  ConnectRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref WebSocketApi
+      RouteKey: $connect
+      AuthorizationType: None
+      OperationName: ConnectRoute
+      Target: !Join
+        - "/"
+        - - "integrations"
+          - !Ref ConnectIntegration
+  ConnectIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref WebSocketApi
+      Description: Connect Integration
+      IntegrationType: AWS_PROXY
+      IntegrationUri:
+        Fn::Sub:
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OnConnectFunction.Arn}/invocations
+
+  DisconnectRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref WebSocketApi
+      RouteKey: $disconnect
+      AuthorizationType: None
+      OperationName: DisconnectRoute
+      Target: !Join
+        - "/"
+        - - "integrations"
+          - !Ref DisconnectIntegration
+  DisconnectIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref WebSocketApi
+      Description: Disconnect Integration
+      IntegrationType: AWS_PROXY
+      IntegrationUri:
+        Fn::Sub:
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OnDisconnectFunction.Arn}/invocations
+
+  CommandRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref WebSocketApi
+      RouteKey: sendcommand
+      AuthorizationType: None
+      OperationName: CommandRoute
+      Target: !Join
+        - "/"
+        - - "integrations"
+          - !Ref CommandIntegration
+  CommandIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref WebSocketApi
+      Description: Command Integration
+      IntegrationType: AWS_PROXY
+      IntegrationUri:
+        Fn::Sub:
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CommandHandlerFunction.Arn}/invocations
+
+
+  # Deployment
+  Deployment:
+    Type: AWS::ApiGatewayV2::Deployment
+    DependsOn:
+      - ConnectRoute
+      - DisconnectRoute
+      - CommandRoute
+    Properties:
+      ApiId: !Ref WebSocketApi
+
+
+  # Stage
+  Stage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      StageName: Prod
+      Description: Prod Stage
+      DeploymentId: !Ref Deployment
+      ApiId: !Ref WebSocketApi
+
+
+  # LAMBDAS
+  OnConnectFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: components/lambdas/projects_management/
+      CodeUri: components/lambdas/on_connect_handler/
       Handler: app.lambda_handler
       Policies:
         - AmazonDynamoDBFullAccess
-      Events:
-        CreateUser:
-          Type: Api
-          Properties:
-            Path: /create_project
-            Method: PUT
-        EditUser:
-          Type: Api
-          Properties:
-            Path: /edit_project
-            Method: POST
-        DeleteUser:
-          Type: Api
-          Properties:
-            Path: /delete_project
-            Method: DELETE
-        AuthenticateUser:
-          Type: Api
-          Properties:
-            Path: /add_user
-            Method: POST
+  OnConnectPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - WebSocketApi
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref OnConnectFunction
+      Principal: apigateway.amazonaws.com
+
+  OnDisconnectFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: components/lambdas/on_disconnect_handler/
+      Handler: app.lambda_handler
+      Policies:
+        - AmazonDynamoDBFullAccess
+  OnDisconnectPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - WebSocketApi
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref OnDisconnectFunction
+      Principal: apigateway.amazonaws.com
+
+  CommandHandlerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: components/lambdas/command_handler/
+      Handler: app.lambda_handler
+      Policies:
+        - AmazonDynamoDBFullAccess
+        - CloudWatchLogsFullAccess
+        - AmazonAPIGatewayInvokeFullAccess
+        - AmazonAPIGatewayAdministrator
+  CommandHandlerPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - WebSocketApi
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref CommandHandlerFunction
+      Principal: apigateway.amazonaws.com
+
 
   # DYNAMODB
   Accounts:
@@ -103,16 +193,55 @@ Resources:
           KeyType: "HASH"
       BillingMode: "PAY_PER_REQUEST"
 
-#Outputs:
-#  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
-#  # Find out more about other implicit resources you can reference within SAM
-#  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-#  HelloWorldApi:
-#    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
-#    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
-#  HelloWorldFunction:
-#    Description: "Hello World Lambda Function ARN"
-#    Value: !GetAtt HelloWorldFunction.Arn
-#  HelloWorldFunctionIamRole:
-#    Description: "Implicit IAM Role created for Hello World function"
-#    Value: !GetAtt HelloWorldFunctionRole.Arn
+  Connections:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: "Connections"
+      AttributeDefinitions:
+        - AttributeName: "account_id"
+          AttributeType: "S"
+        - AttributeName: "connection_id"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "account_id"
+          KeyType: "HASH"
+      BillingMode: "PAY_PER_REQUEST"
+      GlobalSecondaryIndexes:
+        - IndexName: "connection_id_index"
+          KeySchema:
+            - AttributeName: "connection_id"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: "ALL"
+
+
+#  # Outputs
+#  Outputs:
+#    AccountsTableArn:
+#      Description: "Accounts table ARN"
+#      Value: !GetAtt Accounts.Arn
+#
+#    ProjectsTableArn:
+#      Description: "Projects table ARN"
+#      Value: !GetAtt Projects.Arn
+#
+#    ConnectionsTableArn:
+#      Description: "Connections table ARN"
+#      Value: !GetAtt Connections.Arn
+#
+#    OnConnectFunctionArn:
+#      Description: "OnConnect function ARN"
+#      Value: !GetAtt OnConnectFunction.Arn
+#
+#    OnDisconnectFunctionArn:
+#      Description: "OnDisconnect function ARN"
+#      Value: !GetAtt OnDisconnectFunction.Arn
+#
+#    CommandHandlerFunctionArn:
+#      Description: "Command handler function ARN"
+#      Value: !GetAtt CommandHandlerFunction.Arn
+#
+#    WebSocketURI:
+#      Description: "The WSS Protocol URI to connect to"
+#      Value: !Join [ '', [ 'wss://', !Ref WebSocketApi, '.execute-api.',!Ref 'AWS::Region','.amazonaws.com/',!Ref 'Stage' ] ]
+#
