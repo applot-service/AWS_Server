@@ -213,35 +213,3 @@ Resources:
               KeyType: "HASH"
           Projection:
             ProjectionType: "ALL"
-
-
-#  # Outputs
-#  Outputs:
-#    AccountsTableArn:
-#      Description: "Accounts table ARN"
-#      Value: !GetAtt Accounts.Arn
-#
-#    ProjectsTableArn:
-#      Description: "Projects table ARN"
-#      Value: !GetAtt Projects.Arn
-#
-#    ConnectionsTableArn:
-#      Description: "Connections table ARN"
-#      Value: !GetAtt Connections.Arn
-#
-#    OnConnectFunctionArn:
-#      Description: "OnConnect function ARN"
-#      Value: !GetAtt OnConnectFunction.Arn
-#
-#    OnDisconnectFunctionArn:
-#      Description: "OnDisconnect function ARN"
-#      Value: !GetAtt OnDisconnectFunction.Arn
-#
-#    CommandHandlerFunctionArn:
-#      Description: "Command handler function ARN"
-#      Value: !GetAtt CommandHandlerFunction.Arn
-#
-#    WebSocketURI:
-#      Description: "The WSS Protocol URI to connect to"
-#      Value: !Join [ '', [ 'wss://', !Ref WebSocketApi, '.execute-api.',!Ref 'AWS::Region','.amazonaws.com/',!Ref 'Stage' ] ]
-#
