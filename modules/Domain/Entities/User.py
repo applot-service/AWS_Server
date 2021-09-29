@@ -5,7 +5,7 @@ from dataclasses import dataclass, asdict
 import jwt
 import bcrypt
 
-from modules.domain import repository, exceptions
+from modules.Domain import repository, exceptions
 from ApplotLibs.DataStructures import User
 
 
@@ -70,7 +70,7 @@ class Account(User.Account):
         found_account = repository.get_account_by_email(self.email)
         if found_account:
             raise exceptions.EmailAlreadyInUse
-        repository.register_account(self.to_dict())
+        return repository.register_account(self.to_dict())
 
     def delete_account(self):
         repository.delete_account_by_id(self.account_id)

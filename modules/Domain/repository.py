@@ -1,5 +1,5 @@
-from modules.domain.helpers import database
-from modules.domain.entities import Project
+from modules.Domain.Helpers import database
+from modules.Domain.Entities import Project
 
 from typing import Dict
 

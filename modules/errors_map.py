@@ -1,4 +1,4 @@
-from modules.domain import exceptions
+from modules.Domain import exceptions
 
 
 def error(exception: Exception) -> dict:

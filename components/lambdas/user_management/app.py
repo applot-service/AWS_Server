@@ -1,7 +1,7 @@
 import json
 
-from modules.domain.entities import User
-from modules.domain import exceptions
+from modules.Domain.Entities import User
+from modules.Domain import exceptions
 from modules.errors_map import error
 
 

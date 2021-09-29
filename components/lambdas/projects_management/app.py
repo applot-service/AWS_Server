@@ -1,8 +1,8 @@
 import json
 import logging
 
-from modules.domain.entities import Project
-from modules.domain import exceptions
+from modules.Domain.Entities import Project
+from modules.Domain import exceptions
 from modules.errors_map import error
 
 

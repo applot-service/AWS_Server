@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field, asdict
 
-from modules.domain import repository
+from modules.Domain import repository
 from ApplotLibs.DataStructures import Project, Policies
 
 from typing import Optional
