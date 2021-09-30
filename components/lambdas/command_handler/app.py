@@ -26,15 +26,17 @@ def response(subscribers, exec_event):
 
 
 def lambda_handler(event, context):
-    command_source = event.get("body")
-    router = Router(command_source=command_source).create_command()
-    exec_event = router.exec_command()
+    event_body = event.get("body")
+    if event_body:
+        command_source = json.loads(event_body)
+        router = Router(command_source=command_source).create_command()
+        exec_event = router.exec_command()
 
-    subscribers = get_subscribers(event, exec_event)
-    response(
-        subscribers,
-        exec_event.to_dict()
-    )
+        subscribers = get_subscribers(event, exec_event)
+        response(
+            subscribers,
+            exec_event.to_dict()
+        )
 
     return {
         "statusCode": 200,
