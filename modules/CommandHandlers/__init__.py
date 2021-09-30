@@ -46,8 +46,8 @@ class Router:
         self.command_handlers["Account"]["Register"] = AccountCommandHandlers.create_user
 
     def _set_up_projects_handlers(self):
-        self.command_handlers["Projects"]["Pull"] = ProjectsCommandHandlers.Pull
-        self.command_handlers["Projects"]["CreateProject"] = ProjectsCommandHandlers.CreateProject
+        self.command_handlers["Projects"]["Pull"] = None  # "ProjectsCommandHandlers.Pull"
+        self.command_handlers["Projects"]["CreateProject"] = None  # "ProjectsCommandHandlers.CreateProject"
 
     def create_command(self):
         self.command_instance = CommandDeserializator().build_class(command_source=self.command_source)
