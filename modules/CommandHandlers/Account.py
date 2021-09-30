@@ -15,7 +15,7 @@ def create_user(command):
         registered_account_dict = account.register_account()
     except exceptions.EmailAlreadyInUse:
         return AccountEvents.EmailAlreadyInUse()
-    return AccountEvents.Registered(**registered_account_dict)
+    return AccountEvents.Registered.from_dict(registered_account_dict)
 
 
 def edit_user(command):  # TODO: implement
@@ -36,4 +36,4 @@ def auth_user(command):
         account_dict["token"] = User.create_token_with(account.account_id)
     except exceptions.AccountNotFound:
         return AccountEvents.NotFound()
-    return AccountEvents.SignedIn(**account_dict)
+    return AccountEvents.SignedIn.from_dict(account_dict)

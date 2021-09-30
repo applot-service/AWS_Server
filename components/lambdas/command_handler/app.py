@@ -31,7 +31,10 @@ def lambda_handler(event, context):
     exec_event = router.exec_command()
 
     subscribers = get_subscribers(event, exec_event)
-    response(subscribers, exec_event)
+    response(
+        subscribers,
+        exec_event.to_dict()
+    )
 
     return {
         "statusCode": 200,
