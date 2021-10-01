@@ -25,7 +25,9 @@ class CommandDeserializator:
     def build_class(self, command_source: dict):
         command_type = command_source.get("command_type")
         command_action = command_source.get("command_action")
+        print("COMMAND TYPE:", command_type, "ACTION:", command_action)
         command_class = self.command_classes[command_type][command_action]
+        print("COMMAND CLASS:", command_class)
         if not command_class:
             raise Exception
         return command_class.from_dict(command_source)
@@ -51,6 +53,7 @@ class Router:
 
     def create_command(self):
         self.command_instance = CommandDeserializator().build_class(command_source=self.command_source)
+        print("COMMAND INSTANCE:", self.command_instance)
         return self
 
     def exec_command(self):
